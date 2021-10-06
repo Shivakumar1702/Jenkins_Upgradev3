@@ -3,18 +3,18 @@
 <title>Baba's Jenkins </title>
 
 <h2>Request for Jenkins videos</h2>
-<p>
-To,
-Shaik BS Baba
-Senior DevOps Engineer
+<h3>
+To, <br>
+Shaik BS Baba <br>
+Senior DevOps Engineer <br>
 
-I was trying to learn jenkins pipelines.
-I need the videos you have.
+I was trying to learn jenkins pipelines. <br>
+I need the videos you have. <br>
 
-Thanks and Regards,
-Shiva Kumar Allam
-Support Engineer
+Thanks and Regards,<br>
+Shiva Kumar Allam<br>
+Support Engineer<br>
 
-</p>
+<h3>
 </body>
 </html>
