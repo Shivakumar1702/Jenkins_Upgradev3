@@ -1,31 +1,56 @@
-pipeline {
+pipeline{
+    
     agent any
-    stages {
-        stage('Build Application') {
-            steps {
-                sh 'mvn -f java-tomcat-sample/pom.xml clean package'
-            }
-            post {
-                success {
-                    echo "Now Archiving the Artifacts...."
-                    archiveArtifacts artifacts: '**/*.war'
-                }
+    
+    stages{
+        
+        stage("checkout"){
+            steps{
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Shivakumar1702/Jenkins_Upgradev3.git']]])
+            }  
+        }
+        
+        stage("build"){
+            steps{
+                sh 'mvn clean install -f java-tomcat-sample/pom.xml'
             }
         }
-        stage('Deploy in Staging Environment'){
+        
+        stage("archive"){
             steps{
-                build job: 'Deploy_Application_Staging_Env'
-
+                 archiveArtifacts artifacts: '**/*.war', followSymlinks: false
+            }
+        }
+        
+        stage("Shell Message"){
+            steps{
+                sh 'echo "Checkout Done, build has been completed and Archived the Artifacts"'
+            }
+        }
+        
+        stage("Tomcat NPD"){
+            steps{
+                deploy adapters: [tomcat8(credentialsId: '0978a95b-a4a4-4201-afa2-56076c05d01c', path: '', url: 'http://168.61.33.139:8080/webapp')], contextPath: null, onFailure: false, war: '**/*.war'
+            }
+        }
+        
+        stage("NPD Shell Message"){
+            steps{
+                sh 'echo "deployment completed at `date`"'
+            }
+        }
+        
+        stage("Tomcat PD"){
+            steps{
+                deploy adapters: [tomcat8(credentialsId: '0978a95b-a4a4-4201-afa2-56076c05d01c', path: '', url: 'http://168.61.33.139:8081/webapp/')], contextPath: null, onFailure: false, war: '**/*.war'
+            }
+        }
+        
+        stage("PD Shell Message"){
+            steps{
+                sh 'echo "Production deployment completed at `date`"'
             }
             
-        }
-        stage('Deploy to Production'){
-            steps{
-                timeout(time:5, unit:'DAYS'){
-                    input message:'Approve PRODUCTION Deployment?'
-                }
-                build job: 'Deploy_Application_Prod_Env'
-            }
         }
     }
 }
