@@ -3,13 +3,7 @@ pipeline{
     agent any
     
     stages{
-        
-        stage("checkout"){
-            steps{
-                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Shivakumar1702/Jenkins_Upgradev3.git']]])
-            }  
-        }
-        
+
         stage("build"){
             steps{
                 sh 'mvn clean install -f java-tomcat-sample/pom.xml'
