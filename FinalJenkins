@@ -1,0 +1,52 @@
+pipeline{
+    
+    agent any
+    
+    stages{
+        
+        stage("checkout"){
+            steps{
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Shivakumar1702/Jenkins_Upgradev3.git']]])
+            }
+        }
+        
+        stage("build"){
+            steps{
+                withSonarQubeEnv("sonarqube"){
+                    sh 'mvn clean install sonar:sonar -f java-tomcat-sample/pom.xml'
+                }
+            }
+        }
+        
+        stage("artifactupload"){
+            steps{
+                nexusArtifactUploader artifacts: [[artifactId: 'webapp', classifier: '', file: 'java-tomcat-sample/target/webapp.war', type: 'war']], credentialsId: '9a3e62c7-f789-4c17-9891-a820d117b5d0', groupId: 'webapp', nexusUrl: '40.80.145.158:8081/', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-snapshots', version: '1.0-SNAPSHOT'
+            }
+        }
+        
+        stage("tomcatnonprod"){
+            steps{
+                deploy adapters: [tomcat8(credentialsId: '0978a95b-a4a4-4201-afa2-56076c05d01c', path: '', url: 'http://168.61.33.139:8080/webapp/')], contextPath: null, onFailure: false, war: '**/webapp.war'
+            }
+        }
+        
+        stage("nonprodsm"){
+            steps{
+                sh 'echo "Tomcat Non Production Deployment has been completed successfully"'
+            }
+        }
+        
+        stage("tomcatprod"){
+            steps{
+                deploy adapters: [tomcat8(credentialsId: '0978a95b-a4a4-4201-afa2-56076c05d01c', path: '', url: 'http://168.61.33.139:8081/webapp/')], contextPath: null, onFailure: false, war: '**/webapp.war'
+            }
+        }
+        
+        stage("prodsm"){
+            steps{
+                sh 'echo "Tomcat Production Deployment has been completed successfully"'
+            }
+        }
+        
+    }
+}
